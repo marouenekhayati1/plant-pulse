@@ -4,7 +4,7 @@ import { AppShell } from "@/components/app/AppShell";
 import { useAuth } from "@/lib/auth";
 import { supabase } from "@/integrations/supabase/client";
 import { UTILITIES, type UtilityKind, getGuardPost, statusFor, statusColor, type Threshold } from "@/lib/utilities";
-import { SCHEMAS, COMPUTED_LABELS } from "@/lib/forms";
+import { SCHEMAS, COMPUTED_LABELS, type FormField } from "@/lib/forms";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -120,8 +120,8 @@ function Entry() {
 
   // group fields
   const grouped = useMemo(() => {
-    if (!schema) return {} as Record<string, typeof schema.fields>;
-    const g: Record<string, typeof schema.fields> = {};
+    if (!schema) return {} as Record<string, FormField[]>;
+    const g: Record<string, FormField[]> = {};
     for (const f of schema.fields) {
       const k = f.group ?? "Mesures";
       (g[k] ||= []).push(f);
@@ -161,7 +161,7 @@ function Entry() {
                   <CardTitle className="text-base">{group}</CardTitle>
                 </CardHeader>
                 <CardContent className="grid gap-4 sm:grid-cols-2">
-                  {fields.map((f) => {
+                  {fields.map((f: FormField) => {
                     const t = thresholds.find((x) => x.field_key === f.key);
                     const v = parseFloat(data[f.key]);
                     const status = f.type === "number" ? statusFor(v, t) : (data[f.key] === "NOK" ? "critical" : "ok");
@@ -183,7 +183,7 @@ function Entry() {
                           <Select value={data[f.key] ?? ""} onValueChange={(v) => setField(f.key, v)}>
                             <SelectTrigger className="h-11"><SelectValue placeholder="—" /></SelectTrigger>
                             <SelectContent>
-                              {f.options!.map((o) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
+                              {f.options!.map((o: string) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
                             </SelectContent>
                           </Select>
                         )}
