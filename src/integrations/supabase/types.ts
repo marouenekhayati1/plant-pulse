@@ -14,7 +14,131 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      technicians: {
+        Row: {
+          active: boolean
+          created_at: string
+          first_name: string
+          id: string
+          last_name: string
+          matricule: string
+          role: Database["public"]["Enums"]["tech_role"]
+        }
+        Insert: {
+          active?: boolean
+          created_at?: string
+          first_name: string
+          id?: string
+          last_name: string
+          matricule: string
+          role?: Database["public"]["Enums"]["tech_role"]
+        }
+        Update: {
+          active?: boolean
+          created_at?: string
+          first_name?: string
+          id?: string
+          last_name?: string
+          matricule?: string
+          role?: Database["public"]["Enums"]["tech_role"]
+        }
+        Relationships: []
+      }
+      thresholds: {
+        Row: {
+          field_key: string
+          id: string
+          label: string
+          max_value: number | null
+          min_value: number | null
+          unit: string | null
+          updated_at: string
+          utility: Database["public"]["Enums"]["utility_kind"]
+          warn_max: number | null
+          warn_min: number | null
+        }
+        Insert: {
+          field_key: string
+          id?: string
+          label: string
+          max_value?: number | null
+          min_value?: number | null
+          unit?: string | null
+          updated_at?: string
+          utility: Database["public"]["Enums"]["utility_kind"]
+          warn_max?: number | null
+          warn_min?: number | null
+        }
+        Update: {
+          field_key?: string
+          id?: string
+          label?: string
+          max_value?: number | null
+          min_value?: number | null
+          unit?: string | null
+          updated_at?: string
+          utility?: Database["public"]["Enums"]["utility_kind"]
+          warn_max?: number | null
+          warn_min?: number | null
+        }
+        Relationships: []
+      }
+      utility_readings: {
+        Row: {
+          anomaly: boolean
+          anomaly_fields: Json
+          checklist: Json | null
+          comment: string | null
+          computed: Json
+          data: Json
+          guard_post: number
+          id: string
+          recorded_at: string
+          technician_id: string
+          technician_matricule: string
+          technician_name: string
+          utility: Database["public"]["Enums"]["utility_kind"]
+        }
+        Insert: {
+          anomaly?: boolean
+          anomaly_fields?: Json
+          checklist?: Json | null
+          comment?: string | null
+          computed?: Json
+          data?: Json
+          guard_post: number
+          id?: string
+          recorded_at?: string
+          technician_id: string
+          technician_matricule: string
+          technician_name: string
+          utility: Database["public"]["Enums"]["utility_kind"]
+        }
+        Update: {
+          anomaly?: boolean
+          anomaly_fields?: Json
+          checklist?: Json | null
+          comment?: string | null
+          computed?: Json
+          data?: Json
+          guard_post?: number
+          id?: string
+          recorded_at?: string
+          technician_id?: string
+          technician_matricule?: string
+          technician_name?: string
+          utility?: Database["public"]["Enums"]["utility_kind"]
+        }
+        Relationships: [
+          {
+            foreignKeyName: "utility_readings_technician_id_fkey"
+            columns: ["technician_id"]
+            isOneToOne: false
+            referencedRelation: "technicians"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
     }
     Views: {
       [_ in never]: never
@@ -23,7 +147,15 @@ export type Database = {
       [_ in never]: never
     }
     Enums: {
-      [_ in never]: never
+      tech_role: "technician" | "maintenance_manager" | "admin"
+      utility_kind:
+        | "generator_g1"
+        | "generator_g2"
+        | "osmosis"
+        | "hot_water"
+        | "steam_boiler"
+        | "water_room"
+        | "chiller"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -150,6 +282,17 @@ export type CompositeTypes<
 
 export const Constants = {
   public: {
-    Enums: {},
+    Enums: {
+      tech_role: ["technician", "maintenance_manager", "admin"],
+      utility_kind: [
+        "generator_g1",
+        "generator_g2",
+        "osmosis",
+        "hot_water",
+        "steam_boiler",
+        "water_room",
+        "chiller",
+      ],
+    },
   },
 } as const
