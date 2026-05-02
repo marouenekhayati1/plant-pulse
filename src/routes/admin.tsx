@@ -49,7 +49,7 @@ function Admin() {
     toast.success("Mis à jour"); reload();
   }
   async function setRole(id: string, role: string) {
-    const { error } = await supabase.from("technicians").update({ role }).eq("id", id);
+    const { error } = await supabase.from("technicians").update({ role: role as "admin" | "maintenance_manager" | "technician" }).eq("id", id);
     if (error) return toast.error(error.message);
     toast.success("Rôle mis à jour"); reload();
   }
