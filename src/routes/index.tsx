@@ -22,11 +22,13 @@ function LoginPage() {
   const [techs, setTechs] = useState<Tech[]>([]);
   const [open, setOpen] = useState(false);
   const [selected, setSelected] = useState<Tech | null>(null);
+  const [matricule, setMatricule] = useState("");
   const [loading, setLoading] = useState(false);
 
   // new tech form
   const [nFirst, setNFirst] = useState("");
   const [nLast, setNLast] = useState("");
+  const [nMat, setNMat] = useState("");
   const [creating, setCreating] = useState(false);
 
   useEffect(() => {
@@ -41,15 +43,17 @@ function LoginPage() {
 
   async function handleLogin() {
     if (!selected) return toast.error("Sélectionnez votre nom");
+    if (!matricule.trim()) return toast.error("Saisissez votre matricule");
     setLoading(true);
     const { data, error } = await supabase
       .from("technicians")
       .select("*")
       .eq("id", selected.id)
+      .eq("matricule", matricule.trim())
       .maybeSingle();
     setLoading(false);
     if (error || !data) {
-      toast.error("Connexion impossible");
+      toast.error("Matricule incorrect");
       return;
     }
     login(data as Tech);
@@ -58,19 +62,18 @@ function LoginPage() {
   }
 
   async function handleCreate() {
-    if (!nFirst.trim() || !nLast.trim()) {
+    if (!nFirst.trim() || !nLast.trim() || !nMat.trim()) {
       return toast.error("Tous les champs sont requis");
     }
     setCreating(true);
-    const autoMat = `T${Date.now().toString().slice(-6)}`;
     const { data, error } = await supabase
       .from("technicians")
-      .insert({ first_name: nFirst.trim(), last_name: nLast.trim(), matricule: autoMat, role: "technician" })
+      .insert({ first_name: nFirst.trim(), last_name: nLast.trim(), matricule: nMat.trim(), role: "technician" })
       .select()
       .single();
     setCreating(false);
     if (error) {
-      toast.error(error.message);
+      toast.error(error.message.includes("duplicate") ? "Matricule déjà utilisé" : error.message);
       return;
     }
     login(data as Tech);
@@ -120,6 +123,10 @@ function LoginPage() {
                   </PopoverContent>
                 </Popover>
               </div>
+              <div className="space-y-2">
+                <Label>Matricule</Label>
+                <Input className="h-12 text-lg tracking-widest" value={matricule} onChange={(e) => setMatricule(e.target.value)} placeholder="Votre matricule" />
+              </div>
               <Button className="h-12 w-full text-base" onClick={handleLogin} disabled={loading}>
                 {loading ? "Vérification…" : "Se connecter"}
               </Button>
@@ -127,6 +134,7 @@ function LoginPage() {
             <TabsContent value="new" className="space-y-3 pt-4">
               <div className="space-y-2"><Label>Prénom</Label><Input className="h-11" value={nFirst} onChange={(e) => setNFirst(e.target.value)} /></div>
               <div className="space-y-2"><Label>Nom</Label><Input className="h-11" value={nLast} onChange={(e) => setNLast(e.target.value)} /></div>
+              <div className="space-y-2"><Label>Matricule (unique)</Label><Input className="h-11" value={nMat} onChange={(e) => setNMat(e.target.value)} /></div>
               <Button className="h-12 w-full" onClick={handleCreate} disabled={creating}>
                 {creating ? "Création…" : "Créer mon compte"}
               </Button>
