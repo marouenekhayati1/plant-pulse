@@ -125,7 +125,7 @@ function LoginPage() {
               </div>
               <div className="space-y-2">
                 <Label>Matricule</Label>
-                <Input type="password" inputMode="numeric" className="h-14 text-2xl tracking-[0.5em] text-center" value={matricule} onChange={(e) => setMatricule(e.target.value)} placeholder="••••••" />
+                <Input type="password" inputMode="numeric" className="h-12 tracking-widest" value={matricule} onChange={(e) => setMatricule(e.target.value)} placeholder="••••••" />
               </div>
               <Button className="h-12 w-full text-base" onClick={handleLogin} disabled={loading}>
                 {loading ? "Vérification…" : "Se connecter"}
