@@ -9,6 +9,10 @@ import {
   type CognitoUserSession,
 } from "amazon-cognito-identity-js";
 import { supabaseAdmin } from "@/integrations/supabase/client.server";
+// Tables wattnow_session/wattnow_snapshots are new; cast to bypass generated types.
+const db = supabaseAdmin as unknown as {
+  from: (table: string) => any;
+};
 
 // --- Constants discovered from inspecting test.wattnow.io network traffic ---
 const COGNITO_USER_POOL_ID = "us-east-1_NIqaIWN4p";
@@ -82,8 +86,8 @@ function cognitoLogin(username: string, password: string): Promise<Session> {
 }
 
 async function loadCachedSession(): Promise<Session | null> {
-  const { data } = await supabaseAdmin
-    .from("wattnow_session" as never)
+  const { data } = await db
+    .from("wattnow_session")
     .select("*")
     .eq("id", "singleton")
     .maybeSingle();
@@ -107,7 +111,7 @@ async function loadCachedSession(): Promise<Session | null> {
 }
 
 async function saveSession(s: Session): Promise<void> {
-  await supabaseAdmin.from("wattnow_session" as never).upsert({
+  await db.from("wattnow_session").upsert({
     id: "singleton",
     access_token: s.accessToken,
     id_token: s.idToken,
@@ -186,8 +190,8 @@ function toKw(watts: string | null | undefined): number | null {
 }
 
 async function lastSnapshotFallback(error: string): Promise<RealtimeSnapshot> {
-  const { data } = await supabaseAdmin
-    .from("wattnow_snapshots" as never)
+  const { data } = await db
+    .from("wattnow_snapshots")
     .select("*")
     .order("recorded_at", { ascending: false })
     .limit(1)
@@ -236,7 +240,7 @@ export async function pollWattNow(): Promise<RealtimeSnapshot> {
     const delta = conso - prod;
     const recordedAt = new Date().toISOString();
 
-    await supabaseAdmin.from("wattnow_snapshots" as never).insert({
+    await db.from("wattnow_snapshots").insert({
       recorded_at: recordedAt,
       randa1_kw: slots.randa1, randa2_kw: slots.randa2, randa3_kw: slots.randa3,
       ge1_kw: slots.ge1, ge2_kw: slots.ge2,
@@ -259,8 +263,8 @@ export async function pollWattNow(): Promise<RealtimeSnapshot> {
 }
 
 export async function loadRecentSnapshots(limit = 60) {
-  const { data } = await supabaseAdmin
-    .from("wattnow_snapshots" as never)
+  const { data } = await db
+    .from("wattnow_snapshots")
     .select("recorded_at, randa1_kw, randa2_kw, randa3_kw, ge1_kw, ge2_kw, conso_kw, prod_kw, delta_kw")
     .order("recorded_at", { ascending: false })
     .limit(limit);
