@@ -139,6 +139,81 @@ export type Database = {
           },
         ]
       }
+      wattnow_session: {
+        Row: {
+          access_token: string
+          device_key: string | null
+          expires_at: string
+          id: string
+          id_token: string | null
+          refresh_token: string | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          access_token: string
+          device_key?: string | null
+          expires_at: string
+          id?: string
+          id_token?: string | null
+          refresh_token?: string | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          access_token?: string
+          device_key?: string | null
+          expires_at?: string
+          id?: string
+          id_token?: string | null
+          refresh_token?: string | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      wattnow_snapshots: {
+        Row: {
+          conso_kw: number | null
+          delta_kw: number | null
+          ge1_kw: number | null
+          ge2_kw: number | null
+          id: string
+          prod_kw: number | null
+          randa1_kw: number | null
+          randa2_kw: number | null
+          randa3_kw: number | null
+          raw: Json | null
+          recorded_at: string
+        }
+        Insert: {
+          conso_kw?: number | null
+          delta_kw?: number | null
+          ge1_kw?: number | null
+          ge2_kw?: number | null
+          id?: string
+          prod_kw?: number | null
+          randa1_kw?: number | null
+          randa2_kw?: number | null
+          randa3_kw?: number | null
+          raw?: Json | null
+          recorded_at?: string
+        }
+        Update: {
+          conso_kw?: number | null
+          delta_kw?: number | null
+          ge1_kw?: number | null
+          ge2_kw?: number | null
+          id?: string
+          prod_kw?: number | null
+          randa1_kw?: number | null
+          randa2_kw?: number | null
+          randa3_kw?: number | null
+          raw?: Json | null
+          recorded_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

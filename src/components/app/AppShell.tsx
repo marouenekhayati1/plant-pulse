@@ -1,5 +1,5 @@
 import { Link, useNavigate, useRouterState } from "@tanstack/react-router";
-import { Activity, ClipboardList, History, LogOut, Settings, LayoutDashboard } from "lucide-react";
+import { Activity, ClipboardList, History, LogOut, Settings, LayoutDashboard, Zap } from "lucide-react";
 import { useAuth } from "@/lib/auth";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -9,6 +9,7 @@ import { getGuardPost, guardPostLabel } from "@/lib/utilities";
 
 const NAV = [
   { to: "/dashboard", label: "Tableau de bord", icon: LayoutDashboard },
+  { to: "/energie", label: "Énergie temps réel", icon: Zap },
   { to: "/entry", label: "Saisie", icon: ClipboardList },
   { to: "/history", label: "Historique", icon: History },
   { to: "/admin", label: "Admin", icon: Settings, adminOnly: true },
