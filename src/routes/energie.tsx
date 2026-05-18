@@ -75,7 +75,7 @@ function EnergiePage() {
   }, [fetchRealtime]);
 
   const c = data?.current;
-  const surplus = (c?.delta_kw ?? 0) < 0;
+  const surplus = (c?.delta_kw ?? 0) > 0;
 
   const chartData = (data?.history ?? []).map((s) => ({
     time: new Date(s.recorded_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
