@@ -118,7 +118,7 @@ function EnergiePage() {
             <CardContent className="flex flex-col gap-2 p-6 sm:flex-row sm:items-center sm:justify-between">
               <div>
                 <div className="text-xs uppercase tracking-wide text-muted-foreground">
-                  Consommation − Production
+                  Production − Consommation
                 </div>
                 <div className={`flex items-center gap-2 text-4xl font-bold ${surplus ? "text-emerald-500" : "text-destructive"}`}>
                   {surplus ? <TrendingDown className="h-8 w-8" /> : <TrendingUp className="h-8 w-8" />}
