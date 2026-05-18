@@ -1,0 +1,1 @@
+ALTER TABLE public.wattnow_snapshots ADD COLUMN IF NOT EXISTS aux_kw numeric;

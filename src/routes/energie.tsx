@@ -15,6 +15,7 @@ export const Route = createFileRoute("/energie")({
 type Snap = {
   recorded_at: string;
   randa1_kw: number | null; randa2_kw: number | null; randa3_kw: number | null;
+  aux_kw: number | null;
   ge1_kw: number | null; ge2_kw: number | null;
   conso_kw: number; prod_kw: number; delta_kw: number;
 };
@@ -22,6 +23,7 @@ type Payload = {
   current: {
     recordedAt: string;
     randa1_kw: number | null; randa2_kw: number | null; randa3_kw: number | null;
+    aux_kw: number | null;
     ge1_kw: number | null; ge2_kw: number | null;
     conso_kw: number; prod_kw: number; delta_kw: number;
     stale: boolean; error?: string;
@@ -142,10 +144,11 @@ function EnergiePage() {
           </Card>
 
           {/* 5 cartes */}
-          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-5">
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6">
             <DeviceCard label="Randa 1" kw={c.randa1_kw} icon={<Zap className="h-4 w-4" />} kind="conso" />
             <DeviceCard label="Randa 2" kw={c.randa2_kw} icon={<Zap className="h-4 w-4" />} kind="conso" />
             <DeviceCard label="Randa 3" kw={c.randa3_kw} icon={<Zap className="h-4 w-4" />} kind="conso" />
+            <DeviceCard label="AUX" kw={c.aux_kw} icon={<Zap className="h-4 w-4" />} kind="conso" />
             <DeviceCard label="Groupe 1" kw={c.ge1_kw} icon={<Factory className="h-4 w-4" />} kind="prod" />
             <DeviceCard label="Groupe 2" kw={c.ge2_kw} icon={<Factory className="h-4 w-4" />} kind="prod" />
           </div>

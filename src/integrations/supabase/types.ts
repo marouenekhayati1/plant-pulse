@@ -174,6 +174,7 @@ export type Database = {
       }
       wattnow_snapshots: {
         Row: {
+          aux_kw: number | null
           conso_kw: number | null
           delta_kw: number | null
           ge1_kw: number | null
@@ -187,6 +188,7 @@ export type Database = {
           recorded_at: string
         }
         Insert: {
+          aux_kw?: number | null
           conso_kw?: number | null
           delta_kw?: number | null
           ge1_kw?: number | null
@@ -200,6 +202,7 @@ export type Database = {
           recorded_at?: string
         }
         Update: {
+          aux_kw?: number | null
           conso_kw?: number | null
           delta_kw?: number | null
           ge1_kw?: number | null
