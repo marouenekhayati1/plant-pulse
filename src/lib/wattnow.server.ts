@@ -237,7 +237,7 @@ export async function pollWattNow(): Promise<RealtimeSnapshot> {
     }
     const conso = (slots.randa1 ?? 0) + (slots.randa2 ?? 0) + (slots.randa3 ?? 0);
     const prod = (slots.ge1 ?? 0) + (slots.ge2 ?? 0);
-    const delta = conso - prod;
+    const delta = prod - conso;
     const recordedAt = new Date().toISOString();
 
     await db.from("wattnow_snapshots").insert({
