@@ -24,10 +24,11 @@ const WATTNOW_API_BASE =
 const WATTNOW_USER_REGION = "us-east-2";
 
 // Device mapping: WattNow deviceId -> our internal slot
-export const DEVICE_MAP: Record<string, "randa1" | "randa2" | "randa3" | "ge1" | "ge2"> = {
+export const DEVICE_MAP: Record<string, "randa1" | "randa2" | "randa3" | "aux" | "ge1" | "ge2"> = {
   W3pGNRR01014: "randa1",
   W3pGNRR01015: "randa2",
   W3pGNRR01013: "randa3",
+  W3pGNRR01012: "aux",
   W3pGNRR01016: "ge1",
   W3pGNRR01017: "ge2",
 };
@@ -173,6 +174,7 @@ export type RealtimeSnapshot = {
   randa1_kw: number | null;
   randa2_kw: number | null;
   randa3_kw: number | null;
+  aux_kw: number | null;
   ge1_kw: number | null;
   ge2_kw: number | null;
   conso_kw: number;
@@ -199,7 +201,7 @@ async function lastSnapshotFallback(error: string): Promise<RealtimeSnapshot> {
   if (!data) {
     return {
       recordedAt: new Date().toISOString(),
-      randa1_kw: null, randa2_kw: null, randa3_kw: null,
+      randa1_kw: null, randa2_kw: null, randa3_kw: null, aux_kw: null,
       ge1_kw: null, ge2_kw: null,
       conso_kw: 0, prod_kw: 0, delta_kw: 0,
       stale: true, error,
@@ -209,6 +211,7 @@ async function lastSnapshotFallback(error: string): Promise<RealtimeSnapshot> {
   return {
     recordedAt: r.recorded_at,
     randa1_kw: r.randa1_kw, randa2_kw: r.randa2_kw, randa3_kw: r.randa3_kw,
+    aux_kw: r.aux_kw,
     ge1_kw: r.ge1_kw, ge2_kw: r.ge2_kw,
     conso_kw: Number(r.conso_kw) || 0,
     prod_kw: Number(r.prod_kw) || 0,
@@ -229,13 +232,13 @@ export async function pollWattNow(): Promise<RealtimeSnapshot> {
       }
     }
     const slots: Record<string, number | null> = {
-      randa1: null, randa2: null, randa3: null, ge1: null, ge2: null,
+      randa1: null, randa2: null, randa3: null, aux: null, ge1: null, ge2: null,
     };
     for (const d of raw) {
       const slot = DEVICE_MAP[d.deviceId];
       if (slot) slots[slot] = toKw(d.all_value);
     }
-    const conso = (slots.randa1 ?? 0) + (slots.randa2 ?? 0) + (slots.randa3 ?? 0);
+    const conso = (slots.randa1 ?? 0) + (slots.randa2 ?? 0) + (slots.randa3 ?? 0) + (slots.aux ?? 0);
     const prod = (slots.ge1 ?? 0) + (slots.ge2 ?? 0);
     const delta = prod - conso;
     const recordedAt = new Date().toISOString();
@@ -243,6 +246,7 @@ export async function pollWattNow(): Promise<RealtimeSnapshot> {
     await db.from("wattnow_snapshots").insert({
       recorded_at: recordedAt,
       randa1_kw: slots.randa1, randa2_kw: slots.randa2, randa3_kw: slots.randa3,
+      aux_kw: slots.aux,
       ge1_kw: slots.ge1, ge2_kw: slots.ge2,
       conso_kw: conso, prod_kw: prod, delta_kw: delta,
       raw,
@@ -251,6 +255,7 @@ export async function pollWattNow(): Promise<RealtimeSnapshot> {
     return {
       recordedAt,
       randa1_kw: slots.randa1, randa2_kw: slots.randa2, randa3_kw: slots.randa3,
+      aux_kw: slots.aux,
       ge1_kw: slots.ge1, ge2_kw: slots.ge2,
       conso_kw: conso, prod_kw: prod, delta_kw: delta,
       stale: false,
@@ -265,12 +270,13 @@ export async function pollWattNow(): Promise<RealtimeSnapshot> {
 export async function loadRecentSnapshots(limit = 60) {
   const { data } = await db
     .from("wattnow_snapshots")
-    .select("recorded_at, randa1_kw, randa2_kw, randa3_kw, ge1_kw, ge2_kw, conso_kw, prod_kw, delta_kw")
+    .select("recorded_at, randa1_kw, randa2_kw, randa3_kw, aux_kw, ge1_kw, ge2_kw, conso_kw, prod_kw, delta_kw")
     .order("recorded_at", { ascending: false })
     .limit(limit);
   return (data ?? []).reverse() as Array<{
     recorded_at: string;
     randa1_kw: number | null; randa2_kw: number | null; randa3_kw: number | null;
+    aux_kw: number | null;
     ge1_kw: number | null; ge2_kw: number | null;
     conso_kw: number; prod_kw: number; delta_kw: number;
   }>;
