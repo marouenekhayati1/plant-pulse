@@ -34,6 +34,22 @@ function fmt(v: number | null | undefined, digits = 1): string {
   return v.toLocaleString("fr-FR", { minimumFractionDigits: digits, maximumFractionDigits: digits });
 }
 
+/** Formate une puissance exprimée en kW : MW si |v| >= 1000, sinon kW. */
+function fmtPower(kw: number | null | undefined): { value: string; unit: "kW" | "MW" } {
+  if (kw == null || !isFinite(kw)) return { value: "—", unit: "kW" };
+  const abs = Math.abs(kw);
+  if (abs >= 1000) {
+    return {
+      value: (kw / 1000).toLocaleString("fr-FR", { minimumFractionDigits: 2, maximumFractionDigits: 2 }),
+      unit: "MW",
+    };
+  }
+  return {
+    value: kw.toLocaleString("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 }),
+    unit: "kW",
+  };
+}
+
 function EnergiePage() {
   const fetchRealtime = useServerFn(getWattNowRealtime);
   const [data, setData] = useState<Payload | null>(null);
@@ -106,7 +122,7 @@ function EnergiePage() {
                 </div>
                 <div className={`flex items-center gap-2 text-4xl font-bold ${surplus ? "text-emerald-500" : "text-destructive"}`}>
                   {surplus ? <TrendingDown className="h-8 w-8" /> : <TrendingUp className="h-8 w-8" />}
-                  {fmt(c.delta_kw)} kW
+                  {(() => { const p = fmtPower(c.delta_kw); return `${p.value} ${p.unit}`; })()}
                 </div>
                 <div className="text-xs text-muted-foreground">
                   {surplus ? "Surplus de production" : "Déficit — la production ne couvre pas la consommation"}
@@ -115,11 +131,11 @@ function EnergiePage() {
               <div className="flex gap-6 text-sm">
                 <div>
                   <div className="text-muted-foreground">Conso totale</div>
-                  <div className="text-2xl font-semibold">{fmt(c.conso_kw)} kW</div>
+                  <div className="text-2xl font-semibold">{(() => { const p = fmtPower(c.conso_kw); return `${p.value} ${p.unit}`; })()}</div>
                 </div>
                 <div>
                   <div className="text-muted-foreground">Prod totale</div>
-                  <div className="text-2xl font-semibold">{fmt(c.prod_kw)} kW</div>
+                  <div className="text-2xl font-semibold">{(() => { const p = fmtPower(c.prod_kw); return `${p.value} ${p.unit}`; })()}</div>
                 </div>
               </div>
             </CardContent>
@@ -176,7 +192,14 @@ function DeviceCard({ label, kw, icon, kind }: { label: string; kw: number | nul
         </CardTitle>
       </CardHeader>
       <CardContent>
-        <div className={`text-2xl font-bold ${color}`}>{fmt(kw)} <span className="text-sm font-normal text-muted-foreground">kW</span></div>
+        {(() => {
+          const p = fmtPower(kw);
+          return (
+            <div className={`text-2xl font-bold ${color}`}>
+              {p.value} <span className="text-sm font-normal text-muted-foreground">{p.unit}</span>
+            </div>
+          );
+        })()}
       </CardContent>
     </Card>
   );
