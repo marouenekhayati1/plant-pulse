@@ -80,10 +80,10 @@ function EnergiePage() {
   const c = data?.current;
   const surplus = (c?.delta_kw ?? 0) > 0;
 
-  const chartData = (data?.history ?? []).map((s) => ({
-    time: new Date(s.recorded_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
-    conso: Number(s.conso_kw) || 0,
-    prod: Number(s.prod_kw) || 0,
+  const chartData = (data?.trend24h ?? []).map((s) => ({
+    time: new Date(s.hour).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
+    conso: Number(s.conso) || 0,
+    prod: Number(s.prod) || 0,
   }));
 
   return (
