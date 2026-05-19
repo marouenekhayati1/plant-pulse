@@ -255,7 +255,7 @@ export async function pollWattNow(): Promise<RealtimeSnapshot> {
     return {
       recordedAt,
       randa1_kw: slots.randa1, randa2_kw: slots.randa2, randa3_kw: slots.randa3,
-      aux_kw: slots.aux,
+      aux_kw: (slots.aux ?? 0) * 2,
       ge1_kw: slots.ge1, ge2_kw: slots.ge2,
       conso_kw: conso, prod_kw: prod, delta_kw: delta,
       stale: false,
