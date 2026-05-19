@@ -174,7 +174,7 @@ function EnergiePage() {
                 </ResponsiveContainer>
               ) : (
                 <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                  Pas encore assez de points (refresh toutes les 5 s).
+                  Pas encore assez de données sur 24 h.
                 </div>
               )}
             </CardContent>
