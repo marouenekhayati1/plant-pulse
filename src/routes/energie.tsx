@@ -29,6 +29,7 @@ type Payload = {
     stale: boolean; error?: string;
   };
   history: Snap[];
+  trend24h: Array<{ hour: string; conso: number; prod: number }>;
 };
 
 function fmt(v: number | null | undefined, digits = 1): string {
@@ -79,10 +80,10 @@ function EnergiePage() {
   const c = data?.current;
   const surplus = (c?.delta_kw ?? 0) > 0;
 
-  const chartData = (data?.history ?? []).map((s) => ({
-    time: new Date(s.recorded_at).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit", second: "2-digit" }),
-    conso: Number(s.conso_kw) || 0,
-    prod: Number(s.prod_kw) || 0,
+  const chartData = (data?.trend24h ?? []).map((s) => ({
+    time: new Date(s.hour).toLocaleTimeString("fr-FR", { hour: "2-digit", minute: "2-digit" }),
+    conso: Number(s.conso) || 0,
+    prod: Number(s.prod) || 0,
   }));
 
   return (
@@ -156,7 +157,7 @@ function EnergiePage() {
           {/* Tendance */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Tendance 5 minutes</CardTitle>
+              <CardTitle className="text-base">Tendance 24 heures</CardTitle>
             </CardHeader>
             <CardContent className="h-72">
               {chartData.length > 1 ? (
@@ -173,7 +174,7 @@ function EnergiePage() {
                 </ResponsiveContainer>
               ) : (
                 <div className="flex h-full items-center justify-center text-sm text-muted-foreground">
-                  Pas encore assez de points (refresh toutes les 5 s).
+                  Pas encore assez de données sur 24 h.
                 </div>
               )}
             </CardContent>

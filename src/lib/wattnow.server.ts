@@ -238,7 +238,7 @@ export async function pollWattNow(): Promise<RealtimeSnapshot> {
       const slot = DEVICE_MAP[d.deviceId];
       if (slot) slots[slot] = toKw(d.all_value);
     }
-    const conso = (slots.randa1 ?? 0) + (slots.randa2 ?? 0) + (slots.randa3 ?? 0) + (slots.aux ?? 0);
+    const conso = (slots.randa1 ?? 0) + (slots.randa2 ?? 0) + (slots.randa3 ?? 0) + ((slots.aux ?? 0) * 2);
     const prod = (slots.ge1 ?? 0) + (slots.ge2 ?? 0);
     const delta = prod - conso;
     const recordedAt = new Date().toISOString();
@@ -246,7 +246,7 @@ export async function pollWattNow(): Promise<RealtimeSnapshot> {
     await db.from("wattnow_snapshots").insert({
       recorded_at: recordedAt,
       randa1_kw: slots.randa1, randa2_kw: slots.randa2, randa3_kw: slots.randa3,
-      aux_kw: slots.aux,
+      aux_kw: (slots.aux ?? 0) * 2,
       ge1_kw: slots.ge1, ge2_kw: slots.ge2,
       conso_kw: conso, prod_kw: prod, delta_kw: delta,
       raw,
@@ -255,7 +255,7 @@ export async function pollWattNow(): Promise<RealtimeSnapshot> {
     return {
       recordedAt,
       randa1_kw: slots.randa1, randa2_kw: slots.randa2, randa3_kw: slots.randa3,
-      aux_kw: slots.aux,
+      aux_kw: (slots.aux ?? 0) * 2,
       ge1_kw: slots.ge1, ge2_kw: slots.ge2,
       conso_kw: conso, prod_kw: prod, delta_kw: delta,
       stale: false,
@@ -280,4 +280,34 @@ export async function loadRecentSnapshots(limit = 60) {
     ge1_kw: number | null; ge2_kw: number | null;
     conso_kw: number; prod_kw: number; delta_kw: number;
   }>;
+}
+
+export type HourlyTrend = {
+  hour: string;
+  conso: number;
+  prod: number;
+};
+
+export async function loadDailyTrend(): Promise<HourlyTrend[]> {
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { data } = await db
+    .from("wattnow_snapshots")
+    .select("recorded_at, conso_kw, prod_kw")
+    .gte("recorded_at", since)
+    .order("recorded_at", { ascending: true });
+
+  const hourly: Record<string, { conso: number; prod: number; count: number }> = {};
+  for (const row of data ?? []) {
+    const hour = new Date(row.recorded_at).toISOString().slice(0, 13) + ":00:00";
+    if (!hourly[hour]) hourly[hour] = { conso: 0, prod: 0, count: 0 };
+    hourly[hour].conso += Number(row.conso_kw) || 0;
+    hourly[hour].prod += Number(row.prod_kw) || 0;
+    hourly[hour].count++;
+  }
+
+  return Object.entries(hourly).map(([hour, vals]) => ({
+    hour,
+    conso: vals.conso / vals.count,
+    prod: vals.prod / vals.count,
+  }));
 }
