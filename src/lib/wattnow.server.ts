@@ -238,7 +238,7 @@ export async function pollWattNow(): Promise<RealtimeSnapshot> {
       const slot = DEVICE_MAP[d.deviceId];
       if (slot) slots[slot] = toKw(d.all_value);
     }
-    const conso = (slots.randa1 ?? 0) + (slots.randa2 ?? 0) + (slots.randa3 ?? 0) + (slots.aux ?? 0);
+    const conso = (slots.randa1 ?? 0) + (slots.randa2 ?? 0) + (slots.randa3 ?? 0) + ((slots.aux ?? 0) * 2);
     const prod = (slots.ge1 ?? 0) + (slots.ge2 ?? 0);
     const delta = prod - conso;
     const recordedAt = new Date().toISOString();
@@ -246,7 +246,7 @@ export async function pollWattNow(): Promise<RealtimeSnapshot> {
     await db.from("wattnow_snapshots").insert({
       recorded_at: recordedAt,
       randa1_kw: slots.randa1, randa2_kw: slots.randa2, randa3_kw: slots.randa3,
-      aux_kw: slots.aux,
+      aux_kw: (slots.aux ?? 0) * 2,
       ge1_kw: slots.ge1, ge2_kw: slots.ge2,
       conso_kw: conso, prod_kw: prod, delta_kw: delta,
       raw,
