@@ -29,6 +29,7 @@ type Payload = {
     stale: boolean; error?: string;
   };
   history: Snap[];
+  trend24h: Array<{ hour: string; conso: number; prod: number }>;
 };
 
 function fmt(v: number | null | undefined, digits = 1): string {
