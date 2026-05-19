@@ -281,3 +281,33 @@ export async function loadRecentSnapshots(limit = 60) {
     conso_kw: number; prod_kw: number; delta_kw: number;
   }>;
 }
+
+export type HourlyTrend = {
+  hour: string;
+  conso: number;
+  prod: number;
+};
+
+export async function loadDailyTrend(): Promise<HourlyTrend[]> {
+  const since = new Date(Date.now() - 24 * 60 * 60 * 1000).toISOString();
+  const { data } = await db
+    .from("wattnow_snapshots")
+    .select("recorded_at, conso_kw, prod_kw")
+    .gte("recorded_at", since)
+    .order("recorded_at", { ascending: true });
+
+  const hourly: Record<string, { conso: number; prod: number; count: number }> = {};
+  for (const row of data ?? []) {
+    const hour = new Date(row.recorded_at).toISOString().slice(0, 13) + ":00:00";
+    if (!hourly[hour]) hourly[hour] = { conso: 0, prod: 0, count: 0 };
+    hourly[hour].conso += Number(row.conso_kw) || 0;
+    hourly[hour].prod += Number(row.prod_kw) || 0;
+    hourly[hour].count++;
+  }
+
+  return Object.entries(hourly).map(([hour, vals]) => ({
+    hour,
+    conso: vals.conso / vals.count,
+    prod: vals.prod / vals.count,
+  }));
+}
