@@ -157,7 +157,7 @@ function EnergiePage() {
           {/* Tendance */}
           <Card>
             <CardHeader>
-              <CardTitle className="text-base">Tendance 5 minutes</CardTitle>
+              <CardTitle className="text-base">Tendance 24 heures</CardTitle>
             </CardHeader>
             <CardContent className="h-72">
               {chartData.length > 1 ? (
