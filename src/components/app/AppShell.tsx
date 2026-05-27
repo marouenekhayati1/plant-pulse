@@ -27,7 +27,7 @@ export function AppShell({ children }: { children: ReactNode }) {
   }, []);
 
   useEffect(() => {
-    if (ready && !tech) navigate({ to: "/dashboard" });
+    if (ready && !tech) navigate({ to: "/" });
   }, [ready, tech, navigate]);
 
   if (!ready || !tech) {
