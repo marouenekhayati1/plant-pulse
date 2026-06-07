@@ -4,6 +4,5 @@ import tailwindcss from "@tailwindcss/vite";
 import tsconfigPaths from "vite-tsconfig-paths";
 
 export default defineConfig({
-  base: "/plant-pulse/",
   plugins: [react(), tailwindcss(), tsconfigPaths()],
 });
