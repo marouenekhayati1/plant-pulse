@@ -225,6 +225,31 @@ async function lastSnapshotFallback(
 
 async function pollWattNow(db: ReturnType<typeof getDb>): Promise<RealtimeSnapshot> {
   try {
+    // Throttle: if a recent snapshot exists (<25s old), return it instead of
+    // hitting Cognito + WattNow. This prevents unauthenticated flooding from
+    // exhausting upstream API quotas or Supabase write rate.
+    const { data: recent } = await db
+      .from("wattnow_snapshots")
+      .select("*")
+      .order("recorded_at", { ascending: false })
+      .limit(1)
+      .maybeSingle();
+    if (recent) {
+      const ageMs = Date.now() - new Date((recent as any).recorded_at).getTime();
+      if (ageMs < 25_000) {
+        const r = recent as any;
+        return {
+          recordedAt: r.recorded_at,
+          randa1_kw: r.randa1_kw, randa2_kw: r.randa2_kw, randa3_kw: r.randa3_kw,
+          aux_kw: r.aux_kw,
+          ge1_kw: r.ge1_kw, ge2_kw: r.ge2_kw,
+          conso_kw: Number(r.conso_kw) || 0,
+          prod_kw: Number(r.prod_kw) || 0,
+          delta_kw: Number(r.delta_kw) || 0,
+          stale: false,
+        };
+      }
+    }
     let session = await getValidSession(db);
     let raw = await fetchLastValues(session);
     if ("unauthorized" in raw) {
@@ -322,7 +347,7 @@ export default async function handler() {
   } catch (error) {
     const message = error instanceof Error ? error.message : String(error);
     console.error("[wattnow-realtime] handler error:", message);
-    return new Response(JSON.stringify({ error: message }), {
+    return new Response(JSON.stringify({ error: "Internal server error" }), {
       status: 500,
       headers: { "Content-Type": "application/json" },
     });
