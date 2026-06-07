@@ -25,12 +25,30 @@ function Admin() {
   const [techs, setTechs] = useState<Tech[]>([]);
   const [thresholds, setThresholds] = useState<Threshold[]>([]);
   const [filterUtil, setFilterUtil] = useState<UtilityKind | "all">("all");
+  const [verified, setVerified] = useState(false);
 
   useEffect(() => {
-    if (tech && tech.role !== "admin") {
-      toast.error("Accès réservé aux administrateurs");
-      navigate({ to: "/dashboard" });
+    let cancelled = false;
+    async function verifyAdmin() {
+      if (!tech) return;
+      // Re-query the role from the database. Do NOT trust the role stored in
+      // localStorage — a malicious user could edit it to claim admin.
+      const { data, error } = await supabase
+        .from("technicians")
+        .select("role, active")
+        .eq("id", tech.id)
+        .eq("matricule", tech.matricule)
+        .maybeSingle();
+      if (cancelled) return;
+      if (error || !data || !data.active || data.role !== "admin") {
+        toast.error("Accès réservé aux administrateurs");
+        navigate({ to: "/dashboard" });
+        return;
+      }
+      setVerified(true);
     }
+    verifyAdmin();
+    return () => { cancelled = true; };
   }, [tech, navigate]);
 
   async function reload() {
@@ -41,7 +59,7 @@ function Admin() {
     setTechs((t.data ?? []) as Tech[]);
     setThresholds((th.data ?? []) as Threshold[]);
   }
-  useEffect(() => { reload(); }, []);
+  useEffect(() => { if (verified) reload(); }, [verified]);
 
   async function setActive(id: string, active: boolean) {
     const { error } = await supabase.from("technicians").update({ active }).eq("id", id);
@@ -69,6 +87,14 @@ function Admin() {
   }
 
   const visibleTh = thresholds.filter((t) => filterUtil === "all" || t.utility === filterUtil);
+
+  if (!verified) {
+    return (
+      <div className="flex items-center justify-center py-12 text-muted-foreground">
+        Vérification des droits…
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-4">
