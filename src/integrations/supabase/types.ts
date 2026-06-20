@@ -234,6 +234,9 @@ export type Database = {
         | "steam_boiler"
         | "water_room"
         | "chiller"
+        | "vacuum_pump"
+        | "air_compressor"
+        | "thermo"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -370,6 +373,9 @@ export const Constants = {
         "steam_boiler",
         "water_room",
         "chiller",
+        "vacuum_pump",
+        "air_compressor",
+        "thermo",
       ],
     },
   },
