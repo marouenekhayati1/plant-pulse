@@ -30,6 +30,16 @@ function Entry() {
   const [saving, setSaving] = useState(false);
 
   const schema = utility ? SCHEMAS[utility] : null;
+  const currentPost = getGuardPost();
+
+  function isVisible(f: FormField): boolean {
+    if (f.postsOnly && !f.postsOnly.includes(currentPost as 1 | 2 | 3)) return false;
+    if (f.dependsOn) {
+      const v = data[f.dependsOn.key];
+      if (!f.dependsOn.values.includes(v)) return false;
+    }
+    return true;
+  }
 
   useEffect(() => {
     if (!utility) return;
@@ -78,6 +88,8 @@ function Entry() {
     if (!utility || !tech || !schema) return;
     // require all numeric/select fields filled
     for (const f of schema.fields) {
+      if (!isVisible(f)) continue;
+      if (f.optional || f.type === "text") continue;
       if (data[f.key] === undefined || data[f.key] === "" || data[f.key] === null) {
         toast.error(`Champ requis: ${f.label}`);
         return;
@@ -123,11 +135,12 @@ function Entry() {
     if (!schema) return {} as Record<string, FormField[]>;
     const g: Record<string, FormField[]> = {};
     for (const f of schema.fields) {
+      if (!isVisible(f)) continue;
       const k = f.group ?? "Mesures";
       (g[k] ||= []).push(f);
     }
     return g;
-  }, [schema]);
+  }, [schema, data, currentPost]);
 
   return (
     <div className="space-y-4">
