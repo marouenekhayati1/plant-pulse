@@ -62,6 +62,7 @@ function Entry() {
     if (!schema) return [] as { key: string; label: string; value: number; status: "warning" | "critical" }[];
     const out: { key: string; label: string; value: number; status: "warning" | "critical" }[] = [];
     for (const f of schema.fields) {
+      if (!isVisible(f)) continue;
       if (f.type !== "number") continue;
       const v = parseFloat(data[f.key]);
       if (isNaN(v)) continue;
@@ -71,6 +72,7 @@ function Entry() {
     }
     // OK/NOK fields
     for (const f of schema.fields) {
+      if (!isVisible(f)) continue;
       if (f.type === "select" && f.options?.includes("NOK") && data[f.key] === "NOK") {
         out.push({ key: f.key, label: f.label, value: 0, status: "critical" });
       }
