@@ -1,6 +1,6 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useMemo, useState } from "react";
-import ExcelJS from "exceljs";
+import * as XLSX from "xlsx";
 import { AppShell } from "@/components/app/AppShell";
 import { supabase } from "@/integrations/supabase/client";
 import { UTILITIES, type UtilityKind, utilityLabel } from "@/lib/utilities";
@@ -87,26 +87,19 @@ function History() {
     return { headers, rows };
   }
 
-  async function exportExcel() {
-    const wb = new ExcelJS.Workbook();
+  function exportExcel() {
+    const wb = XLSX.utils.book_new();
     UTILITIES.forEach((u) => {
       const list = byUtility.get(u.value) ?? [];
       const { headers, rows } = buildRows(u.value, list);
+      const aoa = [headers, ...rows];
+      const ws = XLSX.utils.aoa_to_sheet(aoa);
+      ws["!cols"] = headers.map(() => ({ wch: 18 }));
       const sheetName = u.label.substring(0, 31).replace(/[\\/?*[\]:]/g, "");
-      const ws = wb.addWorksheet(sheetName);
-      ws.addRow(headers);
-      rows.forEach((r) => ws.addRow(r));
-      ws.columns = headers.map(() => ({ width: 18 }));
+      XLSX.utils.book_append_sheet(wb, ws, sheetName);
     });
     const range = `${from || "debut"}_${to || "fin"}`;
-    const buf = await wb.xlsx.writeBuffer();
-    const blob = new Blob([buf], { type: "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" });
-    const url = URL.createObjectURL(blob);
-    const a = document.createElement("a");
-    a.href = url;
-    a.download = `releves_${range}.xlsx`;
-    a.click();
-    URL.revokeObjectURL(url);
+    XLSX.writeFile(wb, `releves_${range}.xlsx`);
   }
 
   return (
