@@ -1,10 +1,8 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
-import { useServerFn } from "@tanstack/react-start";
 import { AppShell } from "@/components/app/AppShell";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { getWattNowRealtime } from "@/lib/wattnow.functions";
 import { Zap, Factory, TrendingUp, TrendingDown, AlertTriangle } from "lucide-react";
 import { LineChart, Line, XAxis, YAxis, ResponsiveContainer, Tooltip, CartesianGrid, Legend } from "recharts";
 
@@ -54,7 +52,6 @@ function fmtPower(kw: number | null | undefined): { value: string; unit: "kW" | 
 }
 
 function EnergiePage() {
-  const fetchRealtime = useServerFn(getWattNowRealtime);
   const [data, setData] = useState<Payload | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -63,7 +60,9 @@ function EnergiePage() {
     let cancelled = false;
     async function tick() {
       try {
-        const res = (await fetchRealtime()) as Payload;
+        const res = await fetch("/.netlify/functions/wattnow-realtime").then(
+          (r) => r.json()
+        ) as Payload;
         if (!cancelled) { setData(res); setError(null); setLoading(false); }
       } catch (e) {
         if (!cancelled) {
@@ -75,7 +74,7 @@ function EnergiePage() {
     tick();
     const t = setInterval(tick, 5000);
     return () => { cancelled = true; clearInterval(t); };
-  }, [fetchRealtime]);
+  }, []);
 
   const c = data?.current;
   const surplus = (c?.delta_kw ?? 0) > 0;

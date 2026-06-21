@@ -30,6 +30,16 @@ function Entry() {
   const [saving, setSaving] = useState(false);
 
   const schema = utility ? SCHEMAS[utility] : null;
+  const currentPost = getGuardPost();
+
+  function isVisible(f: FormField): boolean {
+    if (f.postsOnly && !f.postsOnly.includes(currentPost as 1 | 2 | 3)) return false;
+    if (f.dependsOn) {
+      const v = data[f.dependsOn.key];
+      if (!f.dependsOn.values.includes(v)) return false;
+    }
+    return true;
+  }
 
   useEffect(() => {
     if (!utility) return;
@@ -52,6 +62,7 @@ function Entry() {
     if (!schema) return [] as { key: string; label: string; value: number; status: "warning" | "critical" }[];
     const out: { key: string; label: string; value: number; status: "warning" | "critical" }[] = [];
     for (const f of schema.fields) {
+      if (!isVisible(f)) continue;
       if (f.type !== "number") continue;
       const v = parseFloat(data[f.key]);
       if (isNaN(v)) continue;
@@ -61,6 +72,7 @@ function Entry() {
     }
     // OK/NOK fields
     for (const f of schema.fields) {
+      if (!isVisible(f)) continue;
       if (f.type === "select" && f.options?.includes("NOK") && data[f.key] === "NOK") {
         out.push({ key: f.key, label: f.label, value: 0, status: "critical" });
       }
@@ -78,6 +90,8 @@ function Entry() {
     if (!utility || !tech || !schema) return;
     // require all numeric/select fields filled
     for (const f of schema.fields) {
+      if (!isVisible(f)) continue;
+      if (f.optional || f.type === "text") continue;
       if (data[f.key] === undefined || data[f.key] === "" || data[f.key] === null) {
         toast.error(`Champ requis: ${f.label}`);
         return;
@@ -123,11 +137,12 @@ function Entry() {
     if (!schema) return {} as Record<string, FormField[]>;
     const g: Record<string, FormField[]> = {};
     for (const f of schema.fields) {
+      if (!isVisible(f)) continue;
       const k = f.group ?? "Mesures";
       (g[k] ||= []).push(f);
     }
     return g;
-  }, [schema]);
+  }, [schema, data, currentPost]);
 
   return (
     <div className="space-y-4">
