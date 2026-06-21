@@ -12,7 +12,6 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as EntryRouteImport } from './routes/entry'
 import { Route as EnergieRouteImport } from './routes/energie'
-import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
 
@@ -31,11 +30,6 @@ const EnergieRoute = EnergieRouteImport.update({
   path: '/energie',
   getParentRoute: () => rootRouteImport,
 } as any)
-const DashboardRoute = DashboardRouteImport.update({
-  id: '/dashboard',
-  path: '/dashboard',
-  getParentRoute: () => rootRouteImport,
-} as any)
 const AdminRoute = AdminRouteImport.update({
   id: '/admin',
   path: '/admin',
@@ -50,7 +44,6 @@ const IndexRoute = IndexRouteImport.update({
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/dashboard': typeof DashboardRoute
   '/energie': typeof EnergieRoute
   '/entry': typeof EntryRoute
   '/history': typeof HistoryRoute
@@ -58,7 +51,6 @@ export interface FileRoutesByFullPath {
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/dashboard': typeof DashboardRoute
   '/energie': typeof EnergieRoute
   '/entry': typeof EntryRoute
   '/history': typeof HistoryRoute
@@ -67,30 +59,21 @@ export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
-  '/dashboard': typeof DashboardRoute
   '/energie': typeof EnergieRoute
   '/entry': typeof EntryRoute
   '/history': typeof HistoryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/dashboard' | '/energie' | '/entry' | '/history'
+  fullPaths: '/' | '/admin' | '/energie' | '/entry' | '/history'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/dashboard' | '/energie' | '/entry' | '/history'
-  id:
-    | '__root__'
-    | '/'
-    | '/admin'
-    | '/dashboard'
-    | '/energie'
-    | '/entry'
-    | '/history'
+  to: '/' | '/admin' | '/energie' | '/entry' | '/history'
+  id: '__root__' | '/' | '/admin' | '/energie' | '/entry' | '/history'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
-  DashboardRoute: typeof DashboardRoute
   EnergieRoute: typeof EnergieRoute
   EntryRoute: typeof EntryRoute
   HistoryRoute: typeof HistoryRoute
@@ -119,13 +102,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof EnergieRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/dashboard': {
-      id: '/dashboard'
-      path: '/dashboard'
-      fullPath: '/dashboard'
-      preLoaderRoute: typeof DashboardRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/admin': {
       id: '/admin'
       path: '/admin'
@@ -146,7 +122,6 @@ declare module '@tanstack/react-router' {
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
-  DashboardRoute: DashboardRoute,
   EnergieRoute: EnergieRoute,
   EntryRoute: EntryRoute,
   HistoryRoute: HistoryRoute,

@@ -32,7 +32,7 @@ function LoginPage() {
   const [creating, setCreating] = useState(false);
 
   useEffect(() => {
-    if (tech) navigate({ to: "/dashboard" });
+    if (tech) navigate({ to: "/entry" });
   }, [tech, navigate]);
 
   useEffect(() => {
@@ -58,7 +58,7 @@ function LoginPage() {
     }
     login(data as Tech);
     toast.success(`Bienvenue ${data.first_name}`);
-    navigate({ to: "/dashboard" });
+    navigate({ to: "/entry" });
   }
 
   async function handleCreate() {
@@ -78,7 +78,7 @@ function LoginPage() {
     }
     login(data as Tech);
     toast.success("Compte créé");
-    navigate({ to: "/dashboard" });
+    navigate({ to: "/entry" });
   }
 
   return (
