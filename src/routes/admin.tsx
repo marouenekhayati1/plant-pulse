@@ -42,7 +42,7 @@ function Admin() {
       if (cancelled) return;
       if (error || !data || !data.active || data.role !== "admin") {
         toast.error("Accès réservé aux administrateurs");
-        navigate({ to: "/entry" });
+        navigate({ to: "/dashboard" });
         return;
       }
       setVerified(true);
