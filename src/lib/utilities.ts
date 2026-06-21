@@ -5,22 +5,16 @@ export type UtilityKind =
   | "hot_water"
   | "steam_boiler"
   | "water_room"
-  | "chiller"
-  | "vacuum_pump"
-  | "air_compressor"
-  | "thermo";
+  | "chiller";
 
 export const UTILITIES: { value: UtilityKind; label: string; icon: string }[] = [
-  { value: "water_room", label: "Salle de traitement d'eau", icon: "🚰" },
-  { value: "hot_water", label: "Chaudière Eau Surchauffée", icon: "🔥" },
-  { value: "steam_boiler", label: "Chaudière à Vapeur", icon: "♨️" },
-  { value: "vacuum_pump", label: "Pompe à Vide", icon: "🌀" },
-  { value: "air_compressor", label: "Compresseur d'Air", icon: "💨" },
-  { value: "chiller", label: "Eau Glacée", icon: "❄️" },
-  { value: "thermo", label: "Thermoventilation", icon: "🌬️" },
-  { value: "generator_g1", label: "Groupe Électrogène 1", icon: "⚡" },
-  { value: "generator_g2", label: "Groupe Électrogène 2", icon: "⚡" },
-  { value: "osmosis", label: "Station d'Osmose", icon: "💧" },
+  { value: "generator_g1", label: "Groupe G1", icon: "⚡" },
+  { value: "generator_g2", label: "Groupe G2", icon: "⚡" },
+  { value: "osmosis", label: "Osmose", icon: "💧" },
+  { value: "hot_water", label: "Eau chaude / surchauffée", icon: "🔥" },
+  { value: "steam_boiler", label: "Chaudière vapeur", icon: "♨️" },
+  { value: "water_room", label: "Salle d'eau", icon: "🚰" },
+  { value: "chiller", label: "Système Chiller", icon: "❄️" },
 ];
 
 export function utilityLabel(u: UtilityKind): string {
