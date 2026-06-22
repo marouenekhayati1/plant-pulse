@@ -13,7 +13,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Textarea } from "@/components/ui/textarea";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Badge } from "@/components/ui/badge";
-import { AlertTriangle, CheckCircle2, Save } from "lucide-react";
+import { AlertTriangle, CheckCircle2, Moon, Save } from "lucide-react";
 import { toast } from "sonner";
 
 export const Route = createFileRoute("/entry")({ component: () => <AppShell><Entry /></AppShell> });
@@ -30,6 +30,13 @@ function Entry() {
   const [saving, setSaving] = useState(false);
 
   const schema = utility ? SCHEMAS[utility] : null;
+
+  function isVisible(f: FormField): boolean {
+    if (!f.showIf) return true;
+    const cur = data[f.showIf.key];
+    const eq = f.showIf.equals;
+    return Array.isArray(eq) ? eq.includes(cur) : cur === eq;
+  }
 
   useEffect(() => {
     if (!utility) return;
@@ -52,6 +59,7 @@ function Entry() {
     if (!schema) return [] as { key: string; label: string; value: number; status: "warning" | "critical" }[];
     const out: { key: string; label: string; value: number; status: "warning" | "critical" }[] = [];
     for (const f of schema.fields) {
+      if (!isVisible(f)) continue;
       if (f.type !== "number") continue;
       const v = parseFloat(data[f.key]);
       if (isNaN(v)) continue;
@@ -61,11 +69,13 @@ function Entry() {
     }
     // OK/NOK fields
     for (const f of schema.fields) {
+      if (!isVisible(f)) continue;
       if (f.type === "select" && f.options?.includes("NOK") && data[f.key] === "NOK") {
         out.push({ key: f.key, label: f.label, value: 0, status: "critical" });
       }
     }
     return out;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [data, schema, thresholds]);
 
   const hasAnomaly = anomalyFields.length > 0;
@@ -76,8 +86,10 @@ function Entry() {
 
   async function attemptSave() {
     if (!utility || !tech || !schema) return;
-    // require all numeric/select fields filled
+    // require non-optional, visible fields filled
     for (const f of schema.fields) {
+      if (f.optional) continue;
+      if (!isVisible(f)) continue;
       if (data[f.key] === undefined || data[f.key] === "" || data[f.key] === null) {
         toast.error(`Champ requis: ${f.label}`);
         return;
@@ -115,7 +127,7 @@ function Entry() {
     setSaving(false);
     if (error) return toast.error(error.message);
     toast.success("Relevé enregistré");
-    setUtility(""); setData({}); setShowChecklist(false); setChecklist({}); setComment("");
+    setUtility("" as UtilityKind | ""); setData({}); setShowChecklist(false); setChecklist({}); setComment("");
   }
 
   // group fields
@@ -123,11 +135,13 @@ function Entry() {
     if (!schema) return {} as Record<string, FormField[]>;
     const g: Record<string, FormField[]> = {};
     for (const f of schema.fields) {
+      if (!isVisible(f)) continue;
       const k = f.group ?? "Mesures";
       (g[k] ||= []).push(f);
     }
     return g;
-  }, [schema]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [schema, data]);
 
   return (
     <div className="space-y-4">
@@ -168,7 +182,12 @@ function Entry() {
                     return (
                       <div key={f.key} className="space-y-1.5">
                         <Label className="flex items-center justify-between text-sm">
-                          <span>{f.label}{f.unit && <span className="text-muted-foreground"> ({f.unit})</span>}</span>
+                          <span className="flex items-center gap-1.5">
+                            {f.nightOnly && <Moon className="h-3 w-3 text-primary" />}
+                            {f.label}
+                            {f.unit && <span className="text-muted-foreground">({f.unit})</span>}
+                            {f.optional && <span className="text-[10px] text-muted-foreground">(facultatif)</span>}
+                          </span>
                           {data[f.key] !== undefined && data[f.key] !== "" && (
                             <span className={`h-2 w-2 rounded-full ${status === "critical" ? "bg-destructive" : status === "warning" ? "bg-warning" : "bg-success"}`} />
                           )}
@@ -186,6 +205,9 @@ function Entry() {
                               {f.options!.map((o: string) => <SelectItem key={o} value={o}>{o}</SelectItem>)}
                             </SelectContent>
                           </Select>
+                        )}
+                        {f.hint && (
+                          <p className="text-[11px] text-muted-foreground">{f.hint}</p>
                         )}
                         {t && f.type === "number" && (
                           <p className="text-[11px] text-muted-foreground">Plage OK: {t.warn_min ?? t.min_value} – {t.warn_max ?? t.max_value} {t.unit}</p>
