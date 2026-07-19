@@ -19,9 +19,10 @@ const COGNITO_USER_POOL_ID = "us-east-1_NIqaIWN4p";
 const COGNITO_CLIENT_ID = "48s3rpim1847lvnfd8pce9glqh";
 // Stable Cognito Identity ID for the randa_admin user (used as path param).
 const WATTNOW_USER_ID = "us-east-1:2e44f066-1ee0-4353-9885-97ee102980bc";
+// Production endpoint used by dashboard.wattnow.io (bundle inspection).
 const WATTNOW_API_BASE =
-  "https://325qd9g4o9.execute-api.us-east-2.amazonaws.com/dev/apis.wattnow.io";
-const WATTNOW_USER_REGION = "us-east-2";
+  "https://uufyt92ekc.execute-api.us-east-1.amazonaws.com/prod/apis.wattnow.io";
+const WATTNOW_USER_REGION = "us-east-1";
 
 // Device mapping: WattNow deviceId -> our internal slot
 export const DEVICE_MAP: Record<string, "randa1" | "randa2" | "randa3" | "aux" | "ge1" | "ge2"> = {
