@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as HistoryRouteImport } from './routes/history'
 import { Route as EntryRouteImport } from './routes/entry'
 import { Route as EnergieRouteImport } from './routes/energie'
+import { Route as DiagnosticsRouteImport } from './routes/diagnostics'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as AdminRouteImport } from './routes/admin'
 import { Route as IndexRouteImport } from './routes/index'
@@ -29,6 +30,11 @@ const EntryRoute = EntryRouteImport.update({
 const EnergieRoute = EnergieRouteImport.update({
   id: '/energie',
   path: '/energie',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DiagnosticsRoute = DiagnosticsRouteImport.update({
+  id: '/diagnostics',
+  path: '/diagnostics',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -51,6 +57,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/dashboard': typeof DashboardRoute
+  '/diagnostics': typeof DiagnosticsRoute
   '/energie': typeof EnergieRoute
   '/entry': typeof EntryRoute
   '/history': typeof HistoryRoute
@@ -59,6 +66,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/dashboard': typeof DashboardRoute
+  '/diagnostics': typeof DiagnosticsRoute
   '/energie': typeof EnergieRoute
   '/entry': typeof EntryRoute
   '/history': typeof HistoryRoute
@@ -68,20 +76,36 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/admin': typeof AdminRoute
   '/dashboard': typeof DashboardRoute
+  '/diagnostics': typeof DiagnosticsRoute
   '/energie': typeof EnergieRoute
   '/entry': typeof EntryRoute
   '/history': typeof HistoryRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
-  fullPaths: '/' | '/admin' | '/dashboard' | '/energie' | '/entry' | '/history'
+  fullPaths:
+    | '/'
+    | '/admin'
+    | '/dashboard'
+    | '/diagnostics'
+    | '/energie'
+    | '/entry'
+    | '/history'
   fileRoutesByTo: FileRoutesByTo
-  to: '/' | '/admin' | '/dashboard' | '/energie' | '/entry' | '/history'
+  to:
+    | '/'
+    | '/admin'
+    | '/dashboard'
+    | '/diagnostics'
+    | '/energie'
+    | '/entry'
+    | '/history'
   id:
     | '__root__'
     | '/'
     | '/admin'
     | '/dashboard'
+    | '/diagnostics'
     | '/energie'
     | '/entry'
     | '/history'
@@ -91,6 +115,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AdminRoute: typeof AdminRoute
   DashboardRoute: typeof DashboardRoute
+  DiagnosticsRoute: typeof DiagnosticsRoute
   EnergieRoute: typeof EnergieRoute
   EntryRoute: typeof EntryRoute
   HistoryRoute: typeof HistoryRoute
@@ -117,6 +142,13 @@ declare module '@tanstack/react-router' {
       path: '/energie'
       fullPath: '/energie'
       preLoaderRoute: typeof EnergieRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/diagnostics': {
+      id: '/diagnostics'
+      path: '/diagnostics'
+      fullPath: '/diagnostics'
+      preLoaderRoute: typeof DiagnosticsRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -147,6 +179,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AdminRoute: AdminRoute,
   DashboardRoute: DashboardRoute,
+  DiagnosticsRoute: DiagnosticsRoute,
   EnergieRoute: EnergieRoute,
   EntryRoute: EntryRoute,
   HistoryRoute: HistoryRoute,
